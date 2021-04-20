@@ -1,3 +1,7 @@
+mod corpus;
+mod markov;
+mod utils;
+
 #[cfg(test)]
 mod tests {
     #[test]
