@@ -1,4 +1,4 @@
-use std::io::{BufReader, Read};
+use std::io::BufReader;
 use std::path::Path;
 use std::{collections::HashMap, io::BufRead};
 
@@ -7,13 +7,23 @@ use std::{collections::HashMap, io::BufRead};
 pub struct CorpusConfig {
     n_gram_size: usize,
     suffix_size: usize,
-    filters: Vec<String>,
+    filters: Option<Vec<String>>,
 }
 
-pub fn open_corpus(file_paths: Vec<&str>) -> Result<Vec<std::fs::File>, std::io::Error> {
+impl Default for CorpusConfig {
+    fn default() -> Self {
+        CorpusConfig {
+            n_gram_size: 2,
+            suffix_size: 1,
+            filters: None,
+        }
+    }
+}
+
+pub fn open_corpus(file_paths: Vec<String>) -> Result<Vec<std::fs::File>, std::io::Error> {
     let mut corpus_vec: Vec<std::fs::File> = vec![];
     for file in file_paths {
-        let path = Path::new(file);
+        let path = Path::new(&file);
         let corpus = std::fs::File::open(path);
         if corpus.is_err() {
             let err_string: String = format!(
@@ -39,8 +49,8 @@ pub fn read_corpus(
     for corpus in corpus_vec {
         let mut reader = BufReader::new(corpus);
         let mut line = String::new();
-        reader.read_line(&mut line);
-        let mut split = line.split(" ");
+        reader.read_line(&mut line).unwrap();
+        let split = line.split(" ");
         let vec: Vec<&str> = split.collect();
         for i in 0..vec.len() {
             let mut n_gram = String::new();
